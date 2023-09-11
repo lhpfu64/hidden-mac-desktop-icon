@@ -1,0 +1,28 @@
+-- 定义桌面和.hidden文件夹的路径
+set desktopPath to (path to desktop folder as text)
+set hiddenFolderPath to desktopPath & ".hidden:"
+
+-- 检查.hidden文件夹是否存在
+tell application "System Events"
+    set folderExists to exists folder hiddenFolderPath
+end tell
+
+-- 如果.hidden文件夹不存在，则创建它
+if not folderExists then
+    do shell script "mkdir " & quoted form of POSIX path of desktopPath & ".hidden"
+end if
+
+-- 检查.hidden文件夹和桌面是否都有内容
+tell application "System Events"
+    set desktopCount to count of items in folder desktopPath
+    set hiddenCount to count of items in folder hiddenFolderPath
+end tell
+
+-- 根据检查结果，进行不同的操作
+if desktopCount > 0 and hiddenCount is 0 then
+    -- 如果桌面有内容而.hidden文件夹为空，则移动桌面内容到.hidden文件夹
+    do shell script "mv " & quoted form of POSIX path of desktopPath & "* " & quoted form of POSIX path of desktopPath & ".hidden/"
+else if hiddenCount > 0 then
+    -- 如果.hidden文件夹有内容，则移动其内容回桌面
+    do shell script "mv " & quoted form of POSIX path of desktopPath & ".hidden/* " & quoted form of POSIX path of desktopPath
+end if
